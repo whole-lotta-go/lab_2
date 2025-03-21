@@ -4,24 +4,54 @@ import (
 	"flag"
 	"fmt"
 	lab2 "github.com/whole-lotta-go/lab_2"
+	"io"
+	"os"
+	"strings"
 )
 
 var (
 	inputExpression = flag.String("e", "", "Expression to compute")
-	// TODO: Add other flags support for input and output configuration.
+	inputFile       = flag.String("f", "", "File to read from")
+	outputFile      = flag.String("o", "", "File to write to")
 )
 
 func main() {
 	flag.Parse()
+	if (*inputExpression == "" && *inputFile == "") || (*inputExpression != "" && *inputFile != "") {
+		flag.Usage()
+		os.Exit(1)
+	}
 
-	// TODO: Change this to accept input from the command line arguments as described in the task and
-	//       output the results using the ComputeHandler instance.
-	//       handler := &lab2.ComputeHandler{
-	//           Input: {construct io.Reader according the command line parameters},
-	//           Output: {construct io.Writer according the command line parameters},
-	//       }
-	//       err := handler.Compute()
+	var input io.Reader
+	if *inputExpression != "" {
+		input = strings.NewReader(*inputExpression)
+	} else if *inputFile != "" {
+		file, err := os.Open(*inputFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error opening input file: %v\n", err)
+			os.Exit(1)
+		}
+		defer file.Close()
+		input = file
+	}
 
-	res, _ := lab2.EvalPostfix("+ 2 2")
-	fmt.Println(res)
+	var output io.Writer
+	if *outputFile != "" {
+		file, err := os.Create(*outputFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating output file: %v\n", err)
+			os.Exit(1)
+		}
+		defer file.Close()
+		output = file
+	} else {
+		output = os.Stdout
+	}
+
+	handler := &lab2.ComputeHandler{Reader: input, Writer: output}
+
+	if err := handler.Compute(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error computing expression: %v\n", err)
+		os.Exit(1)
+	}
 }

@@ -8,8 +8,16 @@ import (
 	"strings"
 )
 
-// TODO: Document this function.
-// EvalPostfix evaluates
+// EvalPostfix evaluates a postfix (Reverse Polish Notation) expression and returns the result.
+// The input is a string consisting of space-separated tokens, where tokens can be integers or operators.
+// Supported operators are: + (addition), - (subtraction), * (multiplication), / (division), and ^ (exponentiation).
+//
+// Parameters:
+//   - input: A string representing the postfix expression (e.g., "3 4 + 2 *").
+//
+// Returns:
+//   - int: The result of evaluating the postfix expression.
+//   - error: An error if the expression is invalid.
 func EvalPostfix(input string) (int, error) {
 	stack := []int{}
 	tokens := strings.Fields(input)

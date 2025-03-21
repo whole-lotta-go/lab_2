@@ -1,6 +1,9 @@
 package lab2
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 type ComputeHandler struct {
 	Reader io.Reader
@@ -8,6 +11,18 @@ type ComputeHandler struct {
 }
 
 func (ch *ComputeHandler) Compute() error {
-	// TODO: Implement.
-	return nil
+	input, err := io.ReadAll(ch.Reader)
+	if err != nil {
+		return err
+	}
+
+	expr := string(input)
+
+	result, err := EvalPostfix(expr)
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprintln(ch.Writer, result)
+	return err
 }
